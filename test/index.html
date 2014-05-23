@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../build/build.css"><style type="text/css">.horizontal-center {
+  display: table;
+  margin-left: auto;
+  margin-right: auto;
+}
+.vertical-center {
+  display: table-cell;
+  vertical-align: middle;
+}
+.page-container {
+  width: 960px;
+  display: table;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style><style type="text/css">body {
+  font-family: "Microsoft Yahei", "Microsoft jenghei", "Hiragino Sans", "Helvetica", "Segoe UI", "Sans-serif";
+}
+.user-list .user {
+  padding: 2px;
+}
+.ui-pagination .page {
+  float: left;
+  margin-left: 1px;
+  background-color: #ddd;
+  padding: 4px 6px;
+  cursor: pointer;
+  color: #000;
+}
+.ui-pagination .page:hover {
+  background-color: #eee;
+}
+.ui-pagination .page.active {
+  color: #fff;
+  background-color: #888;
+}
+</style>
+  </head>
+  <body>
+    <div class="margin-bottom-20">
+      <div class="user-list"></div>
+    </div>
+    <div class="margin-bottom-20">
+      <div class="ui-pagination"></div>
+    </div>
+    <script src="../build/build.js"></script>
+    <script>
+      var j = require('jquery');
+      var Http = require('http');
+      var Pagination = require('ta-test-ajax-pagination').Pagination;
+      
+      /**
+       * Ajax request for data
+       */
+      var http = new Http;
+      
+      http.url('https://api.github.com/users');
+      http.header('Content-Type', 'application/json');
+      http.method('GET');
+      http.on('complete', onComplete);
+      
+      http.on('fail', function () {
+        var data = require('ta-test-ajax-pagination').data;
+        
+        createUserListWithPagination(data);
+      });
+      
+      http.request();
+      
+      function onComplete(response) {
+        var users = JSON.parse(response);
+        
+        createUserListWithPagination(users);
+      }
+      
+      function createUserListWithPagination(users) {
+        /**
+         * Create pagination based on data
+         */
+        var pagination = new Pagination(users.length, 10);
+        
+        for (var i = 1; i <= pagination.getTotalPages(); i++) {
+          j('.ui-pagination').append('<div class="page" data-page="' + i + '">' + i + '</div>')
+        }
+        
+        /**
+         * Display data of first page
+         */
+        var firstPage = pagination.goToPage(1);
+        
+        for (var i = firstPage.itemStart; i < firstPage.itemEnd; i++) {
+          j('.user-list').append('<div class="user">' + users[i].login + '</div>');
+        }
+        
+        j('.ui-pagination').find('.page[data-page=1]').addClass('active');
+        
+        /**
+         * Listen to page click events
+         */
+        j('.ui-pagination').on('click', '.page', function (clickEvent) {
+          clickEvent.preventDefault();
+          
+          var pageElement = clickEvent.currentTarget;
+          var page = pagination.goToPage(parseInt(pageElement.getAttribute('data-page')));
+          
+          j('.user-list').empty();
+          
+          for (var i = page.itemStart; i < page.itemEnd; i++) {
+            j('.user-list').append('<div class="user">' + users[i].login + '</div>');
+          }
+          
+          j('.ui-pagination .page').removeClass('active');
+          j(pageElement).addClass('active');
+        });    
+      }
+    </script>
+  </body>
+</html>
