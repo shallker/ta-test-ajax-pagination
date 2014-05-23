@@ -1,0 +1,21 @@
+{
+  "name": "ta-test-ajax-pagination",
+  "repo": "shallker/ta-test-ajax-pagination",
+  "description": "ta-test-ajax-pagination",
+  "version": "0.0.1",
+  "keywords": [],
+  "dependencies": {
+    "component/jquery": "*",
+    "shallker/http": "*",
+    "shallker-wang/eventy": "*",
+    "shallker-wang/style-units": "*"
+  },
+  "development": {},
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": [
+    "index.js",
+    "lib/pagination.js",
+    "lib/data.js"
+  ]
+}
